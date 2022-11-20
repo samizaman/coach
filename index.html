@@ -1,0 +1,496 @@
+<html>
+
+<head>
+  <title>COACH</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/products.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+  <!-- We are using Font Awesome to create the cart icon  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Link to Vue.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.10/dist/vue.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+</head>
+
+
+
+<body>
+  <!-- Start of Navbar -->
+  <div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light shadow bg-light container-fluid">
+      <div class="container-fluid mb-2">
+        <a class="navbar-brand">COACH</a>
+        <div class="col-md-8">
+          <div class="form-group">
+            <input type="text" v-model="searchInput" class="form-control" placeholder="Search">
+          </div>
+        </div>
+        <header>
+          <button class="btn btn-outline-warning" v-on:click="showCheckout">
+            <!-- 'cartItemCount' is used the same way as a data property. -->
+            {{ cartItemCount }}
+            <!-- add the cart icon -->
+            <span><i class="fa-solid fa-cart-shopping"></i> Cart</span>
+          </button>
+        </header>
+      </div>
+    </nav>
+    <!-- End of Navbar -->
+
+    <div v-if="showProduct">
+
+      <div class="row">
+        <div class="col-2">
+          <div class="container mt-4">
+
+            <!-- Start of Filter -->
+            <h5>Filter By</h5>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="filter" id="ascending" value="ascending"
+                v-model="sortDirection" checked>
+              <label class="form-check-label" for="ascending">
+                Ascending
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="filter" id="descending" value="descending"
+                v-model="sortDirection">
+              <label class="form-check-label" for="descending">
+                Descending
+              </label>
+            </div>
+            <!-- End of Filter -->
+
+            <!-- Start of Sort -->
+            <h5 class="mt-3">Sort By</h5>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="sort" id="price" value="price" v-model="sortBy">
+              <label class="form-check-label" for="price">
+                Price
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="sort" id="location" value="location" v-model="sortBy">
+              <label class="form-check-label" for="location">
+                Location
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="sort" id="availability" value="availability"
+                v-model="sortBy">
+              <label class="form-check-label" for="availability">
+                Availability
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="sort" id="subject" value="subject" v-model="sortBy">
+              <label class="form-check-label" for="subject">
+                Subject
+              </label>
+            </div>
+            <!-- End of Sort -->
+          </div>
+        </div>
+
+
+        <div class="col-10">
+          <div class="container mt-4">
+
+
+            <h4>RESULTS</h4>
+            <!-- Start of Product Cards -->
+            <div v-for="product in searchAndSortProducts" class="d-inline-block p-2">
+
+              <div class="row mx-auto">
+                <div class="card">
+                  <figure>
+                    <!-- bind the 'src' attribute to the 'product.image' in 'data' -->
+                    <img :src="product.image" alt="product-image" width="200" height="220" />
+                  </figure>
+                  <div class="card-body">
+                    <h5 class="card-title text-center" v-text="product.subject"></h5>
+
+                    <!-- The double curly brackets is te shorter version of 'v-text' - mustache syntax -->
+
+                    <p class="card-text text-center text-muted">{{product.location}}</p>
+                    <p class="card-text">Price: £ {{product.price}}</p>
+                    <p class="card-text">Space: {{product.space}}</p>
+                    <p class="card-text">Available Stock: {{ product.availableInventory - cartCount(product.id) }}</p>
+
+                    <!-- <input type="button" value="add" @click="addItem" /> -->
+                    <!-- only show the button when 'canAddToCart' is true -->
+                    <!-- <button @click="addToCart" v-show="canAddToCart">Add to Cart</button> -->
+                    <!-- v-show whatever products customer is adding more than the stock limit - it will only show if canAddToCart is true -->
+                    <button class="btn btn-warning" @click="addToCart(product)" v-if="canAddToCart(product)">
+                      Add to Cart
+                    </button>
+                    <button class="btn btn-warning" disabled="disabled" v-else>Add to Cart</button>
+                    <!-- whenever it's less than 5 -->
+                    <span v-if="product.availableInventory === cartCount(product)">
+                      All out!
+                    </span>
+                    <!-- whenever it's less than 5 -->
+                    <span v-else-if="product.availableInventory - cartCount(product.id) < 5">
+                      Only {{ product.availableInventory - cartCount(product.id) }} left!
+                    </span>
+                    <span v-else>Buy Now!</span>
+                    <div class="text-center">
+                      <span v-for="n in product.rating"><i class="fa-solid fa-star"></i></span>
+                      <span v-for="n in 5 - product.rating"><i class="fa-regular fa-star"></i></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End of Product Cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div v-else>
+
+      <div class=" container-fluid my-5 ">
+        <div class="row justify-content-center ">
+          <div class="col-xl-10">
+            <!-- <div class="card shadow-lg "> -->
+
+            <div class="row  mx-auto justify-content-center text-center">
+              <div class="col-12 mt-3 ">
+                <nav>
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item "><a href="#"><span class="mr-md-3 mr-1">BACK TO SHOP</span></a></li>
+                    <li class="breadcrumb-item"><a class=" active-2" href="#"><span
+                          class="mr-md-3 mr-1">CHECKOUT</span></a></li>
+                  </ol>
+                </nav>
+              </div>
+            </div>
+
+            <div class="row justify-content-around">
+              <div class="col-md-5">
+                <div class="card border-0">
+                  <div class="card-header pb-0">
+                    <h2 class="card-title space ">Checkout</h2>
+                    <hr class="my-0">
+                  </div>
+                  <div class="card-body">
+                    <div class="row mt-4">
+                      <div class="col">
+                        <p class="text-muted mb-2">PAYMENT DETAILS</p>
+                        <hr class="mt-0">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="NAME" class="small text-muted mb-1">NAME ON CARD</label>
+                      <input type="text" class="form-control form-control-sm" name="checkout" id="name-on-card">
+                    </div>
+                    <div class="form-group">
+                      <label for="NAME" class="small text-muted mb-1">CARD NUMBER</label>
+                      <input type="text" class="form-control form-control-sm" name="checkout" id="card-number"
+                        placeholder="XXXX XXXX XXXX XXXX">
+                    </div>
+                    <div class="row no-gutters">
+                      <div class="col-sm-6 pr-sm-2">
+                        <div class="form-group">
+                          <label for="NAME" class="small text-muted mb-1">VALID THROUGH</label>
+                          <input type="text" class="form-control form-control-sm" name="checkout" id="valid-through"
+                            placeholder="MM/YY">
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-group">
+                          <label for="NAME" class="small text-muted mb-1">CVC CODE</label>
+                          <input type="number" class="form-control form-control-sm" name="checkout" id="cvc-code"
+                            placeholder="XXX">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row mb-md-5">
+                      <div class="row mb-5 mt-4 ">
+                        <div><button type="button" v-on:click="submitForm"
+                            class="btn btn-success btn-md btn-block custom ml-3">PURCHASE</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5">
+                <div class="card border-0 ">
+                  <div class="card-header card-2">
+                    <p class="card-text text-muted mt-md-4  mb-2 space">YOUR ORDER</p>
+                    <hr class="my-2">
+                  </div>
+                  <div class="card-body pt-0">
+                    <div class="row  justify-content-between" v-for="product in cart">
+                      <div class="col-auto col-md-7">
+                        <div class="media flex-column flex-sm-row">
+                          <img class=" img-fluid" :src="product.image" width="62" height="62">
+                          <div class="media-body  my-auto">
+                            <div class="row ">
+                              <div class="col-auto">
+                                <p class="mb-0"><b>{{product.subject}}</b></p>
+                                <small class="text-muted">{{product.location}}</small>
+                                <!-- <small class="text-muted">{{product.location}}</small> -->
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class=" pl-0 flex-sm-col col-auto  my-auto">
+                        <button type="button" v-on:click="removeFromCart(product)" class="btn btn-danger"><span
+                            class="fa-solid fa-trash-can"></span></button>
+                      </div>
+                      <div class=" pl-0 flex-sm-col col-auto  my-auto ">
+                        <p><b>£ {{product.price}}</b></p>
+                      </div>
+                      <hr class="my-2">
+                    </div>
+
+
+
+                    <div class="row ">
+                      <div class="col">
+                        <div class="row justify-content-between">
+                          <div class="col-4">
+                            <p class="mb-1"><b>Subtotal</b></p>
+                          </div>
+                          <div class="flex-sm-col col-auto">
+                            <p class="mb-1"><b>£ 100 </b></p>
+                          </div>
+                        </div>
+                        <div class="row justify-content-between">
+                          <div class="col">
+                            <p class="mb-1"><b>Shipping</b></p>
+                          </div>
+                          <div class="flex-sm-col col-auto">
+                            <p class="mb-1"><b>FREE</b></p>
+                          </div>
+                        </div>
+                        <div class="row justify-content-between">
+                          <div class="col-4">
+                            <p><b>Total</b></p>
+                          </div>
+                          <div class="flex-sm-col col-auto">
+                            <p class="mb-1"><b>£ 537 </b></p>
+                          </div>
+                        </div>
+                        <hr class="my-0">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- </div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function ValidateCreditCardNumber() {
+
+      var ccNum = document.getElementById("cardNum").value;
+      var visaRegEx = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
+      var mastercardRegEx = /^(?:5[1-5][0-9]{14})$/;
+      var amexpRegEx = /^(?:3[47][0-9]{13})$/;
+      var discovRegEx = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
+      var isValid = false;
+
+      if (visaRegEx.test(ccNum)) {
+        isValid = true;
+      } else if (mastercardRegEx.test(ccNum)) {
+        isValid = true;
+      } else if (amexpRegEx.test(ccNum)) {
+        isValid = true;
+      } else if (discovRegEx.test(ccNum)) {
+        isValid = true;
+      }
+
+      if (isValid) {
+        alert("Thank You!");
+      } else {
+        alert("Please provide a valid Visa number!");
+      }
+    }
+    var vueInstance = new Vue({
+      el: "#app",
+      data: () => {
+        return {
+          // header: "COACH",
+          // The first 'products' is a Vue instance/property
+          // The second 'products' is an array from products.js
+          products: products,
+          cart: [], // array to store items in shopping cart
+          showProduct: true,
+          sortBy: "",
+          sortDirection: "",
+          searchInput: "",
+          order: {
+            firstName: "",
+            lastName: "",
+            address: "",
+            city: "",
+            zip: "",
+            state: "",
+            method: "Home",
+            gift: "Send as a Gift",
+            sendGift: "Send as a Gift",
+            dontSendGift: "Send as a Gift",
+
+          },
+          states: {
+            AL: "Alaska",
+            AR: "Arizona",
+            CA: "California",
+            NV: "Nevada",
+          }
+        };
+      },
+      methods: {
+        addToCart(product) {
+          this.cart.push(product); // pushing product id to the cart array
+          // this.$emit("addItemToCart", product)
+          // this.cart.push(product)
+          this.products.forEach((item) => {
+            if (item.id === product.id) {
+              item.space -= 1;
+            }
+          })
+          console.log(this.cart);
+        },
+        showCheckout() {
+          if (this.cart.length > 0) {
+            this.showProduct = this.showProduct ? false : true
+          } else {
+            alert("Add items to the cart!");
+          }
+          // console.log(this.showProduct);
+          // if this.showProduct is true return false else true
+          // if showCheckout returns true it shows the products if its false it shows checkout
+
+        },
+        submitForm() {
+          alert("Order Submitted");
+          this.cart = [];
+          this.showProduct = this.showProduct ? false : true
+
+        },
+        // space(product) {
+        //   if (product.space > 0) {
+        //     return true;
+        //   } else {
+        //     return false;
+        //   }
+        // },
+        removeFromCart(product) {
+          this.cart.splice(product, 1)
+          this.products.forEach((item) => {
+            if (item.id === product.id) {
+              item.space += 1;
+            }
+          })
+        },
+        // checks whether we are able to add items to the cart based on what's there in our available inventory 
+        canAddToCart(product) {
+          if (product.space > 0) {
+            return true;
+          } else {
+            return false;
+          }
+          // add and check available inventory
+          console.log("canAddToCart");
+          //availableInventory greater than carItemCount
+          // return product.availableInventory > this.cartCount(product.id);
+        },
+        cartCount(id) {
+          let count = 0
+          for (let i = 0; i < this.cart.length; i++) {
+            if (this.cart[i] === id) {
+              count++
+            }
+          }
+          return count;
+        },
+      },
+      computed: {
+        // the Computed Property object
+        cartItemCount: function () {
+          // the property name
+          // its value is calculated when it is called
+          console.log("cartItemCount");
+          return this.cart.length || "";
+        },
+        searchAndSortProducts() {
+          if (this.searchInput) {
+            return this.products.filter((product) => {
+              return product.subject.toLowerCase().includes(this.searchInput.toLowerCase())
+            })
+          }
+          else if (this.sortBy === "subject" && this.sortDirection === "ascending") {
+            return this.products.sort((a, b) => {
+              return a.subject.localeCompare(b.subject)
+            })
+          }
+          else if (this.sortBy === "subject" && this.sortDirection === "descending") {
+            return this.products.sort((a, b) => {
+              return b.subject.localeCompare(a.subject)
+            })
+          }
+          else if (this.sortBy === "price" && this.sortDirection === "ascending") {
+            return this.products.sort((a, b) => {
+              return a.price - b.price
+            })
+          }
+          else if (this.sortBy === "price" && this.sortDirection === "descending") {
+            return this.products.sort((a, b) => {
+              return b.price - a.price
+            })
+          }
+          else if (this.sortBy === "location" && this.sortDirection === "ascending") {
+            return this.products.sort((a, b) => {
+              return a.location.localeCompare(b.location)
+            })
+          }
+          else if (this.sortBy === "location" && this.sortDirection === "descending") {
+            return this.products.sort((a, b) => {
+              return b.location.localeCompare(a.location)
+            })
+          }
+          else if (this.sortBy === "availability" && this.sortDirection === "ascending") {
+            return this.products.sort((a, b) => {
+              return a.space - b.space
+            })
+          }
+          else if (this.sortBy === "availability" && this.sortDirection === "descending") {
+            return this.products.sort((a, b) => {
+              return b.space - a.space
+            })
+          }
+          else {
+            return this.products
+          }
+
+          //   let productsArray = this.products.slice(0);
+          //   function compare(a, b) {
+          //     if (a.price > b.price)
+          //       return 1;
+          //     if (a.price < b.price)
+          //       return -1;
+          //     return 0
+          //   }
+          //   return productsArray.sort(compare)
+        }
+      },
+    });
+  </script>
+</body>
+
+</html>
