@@ -4,7 +4,7 @@ Coach is a fictitious web app for Middlesex University (CST3145) that allows stu
 
 ## Links
 
-GitHub Repository: https://github.com/samizaman/coach
+GitHub Repository: https://github.com/samizaman/coach <br>
 GitHub Pages: 
 
 ## Contributing
