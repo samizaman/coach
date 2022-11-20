@@ -158,7 +158,6 @@
       <div class=" container-fluid my-5 ">
         <div class="row justify-content-center ">
           <div class="col-xl-10">
-            <!-- <div class="card shadow-lg "> -->
 
             <div class="row  mx-auto justify-content-center text-center">
               <div class="col-12 mt-3 ">
@@ -238,7 +237,6 @@
                               <div class="col-auto">
                                 <p class="mb-0"><b>{{product.subject}}</b></p>
                                 <small class="text-muted">{{product.location}}</small>
-                                <!-- <small class="text-muted">{{product.location}}</small> -->
                               </div>
                             </div>
                           </div>
@@ -289,7 +287,6 @@
                 </div>
               </div>
             </div>
-            <!-- </div> -->
           </div>
         </div>
       </div>
@@ -331,8 +328,6 @@
       methods: {
         addToCart(product) {
           this.cart.push(product); // pushing product id to the cart array
-          // this.$emit("addItemToCart", product)
-          // this.cart.push(product)
           this.products.forEach((item) => {
             if (item.id === product.id) {
               item.space -= 1;
@@ -346,10 +341,6 @@
           } else {
             alert("Add items to the cart!");
           }
-          // console.log(this.showProduct);
-          // if this.showProduct is true return false else true
-          // if showCheckout returns true it shows the products if its false it shows checkout
-
         },
         submitForm() {
           alert("Order Submitted");
@@ -357,13 +348,6 @@
           this.showProduct = this.showProduct ? false : true
 
         },
-        // space(product) {
-        //   if (product.space > 0) {
-        //     return true;
-        //   } else {
-        //     return false;
-        //   }
-        // },
         removeFromCart(product) {
           this.cart.splice(product, 1)
           this.products.forEach((item) => {
@@ -379,10 +363,7 @@
           } else {
             return false;
           }
-          // add and check available inventory
           console.log("canAddToCart");
-          //availableInventory greater than carItemCount
-          // return product.availableInventory > this.cartCount(product.id);
         },
         cartCount(id) {
           let count = 0
@@ -395,10 +376,7 @@
         },
       },
       computed: {
-        // the Computed Property object
         cartItemCount: function () {
-          // the property name
-          // its value is calculated when it is called
           console.log("cartItemCount");
           return this.cart.length || "";
         },
@@ -451,16 +429,6 @@
           else {
             return this.products
           }
-
-          //   let productsArray = this.products.slice(0);
-          //   function compare(a, b) {
-          //     if (a.price > b.price)
-          //       return 1;
-          //     if (a.price < b.price)
-          //       return -1;
-          //     return 0
-          //   }
-          //   return productsArray.sort(compare)
         }
       },
     });
