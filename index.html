@@ -187,12 +187,13 @@
                     </div>
                     <div class="form-group">
                       <label for="NAME" class="small text-muted mb-1">NAME ON CARD</label>
-                      <input type="text" class="form-control form-control-sm" name="checkout" id="name-on-card">
+                      <input type="text" class="form-control form-control-sm" name="checkout" id="name-on-card"
+                        onkeyup="ValidateCreditCardName()"><span class="text-danger" id="error"></span>
                     </div>
                     <div class="form-group">
                       <label for="NAME" class="small text-muted mb-1">CARD NUMBER</label>
-                      <input type="text" class="form-control form-control-sm" name="checkout" id="card-number"
-                        placeholder="XXXX XXXX XXXX XXXX" onkeyup="ValidateCreditCardNumber()"><span class="text-muted"
+                      <input type="number" class="form-control form-control-sm" name="checkout" id="card-number"
+                        placeholder="XXXX XXXX XXXX XXXX" onkeyup="ValidateCreditCardNumber()"><span class="text-danger"
                         id="error-msg"></span>
                     </div>
                     <div class="row no-gutters">
@@ -293,6 +294,22 @@
     </div>
   </div>
   <script type="text/javascript">
+    function ValidateCreditCardName() {
+      var reg = /^[a-z]+$/i;
+      var nameOnCard = document.getElementById("name-on-card").value;
+      var isValid = false;
+
+      if (reg.test(nameOnCard)) {
+        isValid = true;
+      }
+      if (isValid) {
+        document.getElementById('error').innerHTML = "";
+      } else {
+        document.getElementById('error').innerHTML = "Please enter letters only!";
+      }
+    }
+
+
     function ValidateCreditCardNumber() {
 
       var cardNumber = document.getElementById("card-number").value;
@@ -305,7 +322,7 @@
       } else if (mastercardRegEx.test(cardNumber)) {
         isValid = true;
       }
-      if (!isValid) {
+      if (isValid) {
         document.getElementById('error-msg').innerHTML = "";
       } else {
         document.getElementById('error-msg').innerHTML = "Please provide a valid Visa number!";
