@@ -193,7 +193,8 @@
                     <div class="form-group">
                       <label for="NAME" class="small text-muted mb-1">CARD NUMBER</label>
                       <input type="text" class="form-control form-control-sm" name="checkout" id="card-number"
-                        placeholder="XXXX XXXX XXXX XXXX">
+                        placeholder="XXXX XXXX XXXX XXXX" onkeyup="ValidateCreditCardNumber()"><span class="text-muted"
+                        id="error-msg"></span>
                     </div>
                     <div class="row no-gutters">
                       <div class="col-sm-6 pr-sm-2">
@@ -297,34 +298,26 @@
   <script type="text/javascript">
     function ValidateCreditCardNumber() {
 
-      var ccNum = document.getElementById("cardNum").value;
+      var cardNumber = document.getElementById("card-number").value;
       var visaRegEx = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
       var mastercardRegEx = /^(?:5[1-5][0-9]{14})$/;
-      var amexpRegEx = /^(?:3[47][0-9]{13})$/;
-      var discovRegEx = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
       var isValid = false;
 
-      if (visaRegEx.test(ccNum)) {
+      if (visaRegEx.test(cardNumber)) {
         isValid = true;
-      } else if (mastercardRegEx.test(ccNum)) {
-        isValid = true;
-      } else if (amexpRegEx.test(ccNum)) {
-        isValid = true;
-      } else if (discovRegEx.test(ccNum)) {
+      } else if (mastercardRegEx.test(cardNumber)) {
         isValid = true;
       }
-
-      if (isValid) {
-        alert("Thank You!");
+      if (!isValid) {
+        document.getElementById('error-msg').innerHTML = "";
       } else {
-        alert("Please provide a valid Visa number!");
+        document.getElementById('error-msg').innerHTML = "Please provide a valid Visa number!";
       }
     }
     var vueInstance = new Vue({
       el: "#app",
       data: () => {
         return {
-          // header: "COACH",
           // The first 'products' is a Vue instance/property
           // The second 'products' is an array from products.js
           products: products,
@@ -333,25 +326,6 @@
           sortBy: "",
           sortDirection: "",
           searchInput: "",
-          order: {
-            firstName: "",
-            lastName: "",
-            address: "",
-            city: "",
-            zip: "",
-            state: "",
-            method: "Home",
-            gift: "Send as a Gift",
-            sendGift: "Send as a Gift",
-            dontSendGift: "Send as a Gift",
-
-          },
-          states: {
-            AL: "Alaska",
-            AR: "Arizona",
-            CA: "California",
-            NV: "Nevada",
-          }
         };
       },
       methods: {
