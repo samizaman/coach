@@ -7,14 +7,6 @@
     width:100%;
 }
 
-.product-list .row{
-    margin-right: 5px!important;
-}
-
-.second a:hover {
-    color: rgb(92, 92, 92) ;
-}
-
 .active-2 {
     color: rgb(92, 92, 92) 
 }
@@ -23,10 +15,6 @@
     padding: 0px;
     font-size: 10px;
     color: #aaa !important;
-}
-
-.first {
-    background-color: white ;
 }
 
 a {
