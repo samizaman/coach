@@ -327,6 +327,7 @@
         validateCart() {
           return this.cart.length > 0
         },
+        // pushes product to the cart array and subtracted one space
         addToCart(product) {
           this.cart.push(product); // pushing product id to the cart array
           this.products.forEach((item) => {
@@ -336,6 +337,7 @@
           })
           console.log(this.cart);
         },
+        // if showCheckout returns true it shows the products if its false it shows checkout
         showCheckout() {
           if (this.cart.length > 0) {
             this.showProduct = this.showProduct ? false : true
@@ -347,6 +349,7 @@
           this.showProduct = this.showProduct ? false : true
 
         },
+        // removed one product from the cart array and subtracted one space
         removeFromCart(product) {
           this.cart.splice(product, 1)
           this.products.forEach((item) => {
@@ -382,12 +385,15 @@
           console.log("cartItemCount");
           return this.cart.length || "";
         },
+        // localeCompare() method compares two strings in the current locale
+        // returns sort order -1, 1, or 0 (for before, after, or equal).
         searchAndSortProducts() {
           if (this.searchInput) {
             return this.products.filter((product) => {
-              return product.subject.toLowerCase().includes(this.searchInput.toLowerCase())
+              return product.subject.toLowerCase().includes(this.searchInput.toLowerCase()) || product.location.toLowerCase().includes(this.searchInput.toLowerCase())
             })
           }
+
           else if (this.sortBy === "subject" && this.sortDirection === "ascending") {
             return this.products.sort((a, b) => {
               return a.subject.localeCompare(b.subject)
