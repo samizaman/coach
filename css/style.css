@@ -16,3 +16,10 @@ a {
     text-decoration: none !important;
     color: #aaa ;
 }
+
+.invalid {
+    border: 10px solid red;
+  }
+.valid {
+    border: 10px solid green;
+  }

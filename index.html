@@ -29,10 +29,14 @@
           </div>
         </div>
         <header>
-          <button class="btn btn-outline-warning" v-on:click="showCheckout">
+          <button class="btn btn-outline-warning" v-on:click="showCheckout" v-if="validateCart">
             <!-- 'cartItemCount' is used the same way as a data property. -->
             {{ cartItemCount }}
             <!-- add the cart icon -->
+            <span><i class="fa-solid fa-cart-shopping"></i> Cart</span>
+          </button>
+          <button class="btn btn-outline-warning" disabled="disabled" v-else>
+            {{ cartItemCount }}
             <span><i class="fa-solid fa-cart-shopping"></i> Cart</span>
           </button>
         </header>
@@ -105,7 +109,7 @@
             <div v-for="product in searchAndSortProducts" class="d-inline-block p-2">
 
               <div class="row mx-auto">
-                <div class="card">
+                <div class="card text-center">
                   <figure>
                     <!-- bind the 'src' attribute to the 'product.image' in 'data' -->
                     <img :src="product.image" alt="product-image" width="200" height="220" />
@@ -113,31 +117,15 @@
                   <div class="card-body">
                     <h5 class="card-title text-center" v-text="product.subject"></h5>
 
-                    <!-- The double curly brackets is te shorter version of 'v-text' - mustache syntax -->
-
                     <p class="card-text text-center text-muted">{{product.location}}</p>
                     <p class="card-text">Price: £ {{product.price}}</p>
                     <p class="card-text">Space: {{product.space}}</p>
-                    <p class="card-text">Available Stock: {{ product.availableInventory - cartCount(product.id) }}</p>
 
-                    <!-- <input type="button" value="add" @click="addItem" /> -->
-                    <!-- only show the button when 'canAddToCart' is true -->
-                    <!-- <button @click="addToCart" v-show="canAddToCart">Add to Cart</button> -->
-                    <!-- v-show whatever products customer is adding more than the stock limit - it will only show if canAddToCart is true -->
                     <button class="btn btn-warning" @click="addToCart(product)" v-if="canAddToCart(product)">
                       Add to Cart
                     </button>
                     <button class="btn btn-warning" disabled="disabled" v-else>Add to Cart</button>
-                    <!-- whenever it's less than 5 -->
-                    <span v-if="product.availableInventory === cartCount(product)">
-                      All out!
-                    </span>
-                    <!-- whenever it's less than 5 -->
-                    <span v-else-if="product.availableInventory - cartCount(product.id) < 5">
-                      Only {{ product.availableInventory - cartCount(product.id) }} left!
-                    </span>
-                    <span v-else>Buy Now!</span>
-                    <div class="text-center">
+                    <div class="mt-2">
                       <span v-for="n in product.rating"><i class="fa-solid fa-star"></i></span>
                       <span v-for="n in 5 - product.rating"><i class="fa-regular fa-star"></i></span>
                     </div>
@@ -186,19 +174,32 @@
                         <hr class="mt-0">
                       </div>
                     </div>
-                    <div class="form-group">
-                      <label for="NAME" class="small text-muted mb-1">NAME ON CARD</label>
-                      <input type="text" class="form-control form-control-sm" name="checkout" id="name-on-card"
-                        onkeyup="ValidateCreditCardName()"><span class="text-danger" id="error"></span>
+                    <div class="row ">
+                      <div class="col-sm-6">
+                        <div class="form-group">
+                          <label for="name" class="small text-muted mb-1">NAME ON CARD</label>
+                          <input type="text" class="form-control form-control-sm" name="name" id="name-on-card"
+                            @keyup="validateName" v-model="name"><span class="text-danger" id="error"></span>
+                        </div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="form-group">
+                          <label for="phoneNumber" class="small text-muted mb-1">PHONE NUMBER</label>
+                          <input v-model="phoneNumber" @keyup="validatePhoneNumber" type="text"
+                            class="form-control form-control-sm" name="phoneNumber" id="phone-number"
+                            placeholder="971XX XXX XXXX">
+                        </div>
+                      </div>
                     </div>
+
                     <div class="form-group">
                       <label for="NAME" class="small text-muted mb-1">CARD NUMBER</label>
                       <input type="number" class="form-control form-control-sm" name="checkout" id="card-number"
                         placeholder="XXXX XXXX XXXX XXXX" onkeyup="ValidateCreditCardNumber()"><span class="text-danger"
                         id="error-msg"></span>
                     </div>
-                    <div class="row no-gutters">
-                      <div class="col-sm-6 pr-sm-2">
+                    <div class="row ">
+                      <div class="col-sm-6">
                         <div class="form-group">
                           <label for="NAME" class="small text-muted mb-1">VALID THROUGH</label>
                           <input type="text" class="form-control form-control-sm" name="checkout" id="valid-through"
@@ -207,8 +208,8 @@
                       </div>
                       <div class="col-sm-6">
                         <div class="form-group">
-                          <label for="NAME" class="small text-muted mb-1">CVC CODE</label>
-                          <input type="number" class="form-control form-control-sm" name="checkout" id="cvc-code"
+                          <label for="NAME" class="small text-muted mb-1">CVV CODE</label>
+                          <input type="number" class="form-control form-control-sm" name="checkout" id="cvv-code"
                             placeholder="XXX">
                         </div>
                       </div>
@@ -263,7 +264,7 @@
                             <p class="mb-1"><b>Subtotal</b></p>
                           </div>
                           <div class="flex-sm-col col-auto">
-                            <p class="mb-1"><b>£ 100 </b></p>
+                            <p class="mb-1"><b>FREE</b></p>
                           </div>
                         </div>
                         <div class="row justify-content-between">
@@ -279,7 +280,7 @@
                             <p><b>Total</b></p>
                           </div>
                           <div class="flex-sm-col col-auto">
-                            <p class="mb-1"><b>£ 537 </b></p>
+                            <p class="mb-1"><b>FREE</b></p>
                           </div>
                         </div>
                         <hr class="my-0">
@@ -295,53 +296,6 @@
     </div>
   </div>
   <script type="text/javascript">
-    function ValidateButton() {
-      var purchaseButton = document.getElementById("purchase-btn");
-      var nameOnCard = document.getElementById("name-on-card").value;
-      var cardNumber = document.getElementById("card-number").value;
-      var validThrough = document.getElementById("valid-through").value;
-      var cvcCode = document.getElementById("cvc-code").value;
-
-      if (nameOnCard == "" || cardNumber == "" || validThrough == "" || cvcCode == "") {
-        purchaseButton.disabled = true;
-      }
-
-    }
-    window.onload = ValidateButton;
-    function ValidateCreditCardName() {
-      var reg = /^[a-z]+$/i;
-      var nameOnCard = document.getElementById("name-on-card").value;
-      var isValid = false;
-
-      if (reg.test(nameOnCard)) {
-        isValid = true;
-      }
-      if (isValid) {
-        document.getElementById('error').innerHTML = "";
-      } else {
-        document.getElementById('error').innerHTML = "Please enter letters only!";
-      }
-    }
-
-
-    function ValidateCreditCardNumber() {
-
-      var cardNumber = document.getElementById("card-number").value;
-      var visaRegEx = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
-      var mastercardRegEx = /^(?:5[1-5][0-9]{14})$/;
-      var isValid = false;
-
-      if (visaRegEx.test(cardNumber)) {
-        isValid = true;
-      } else if (mastercardRegEx.test(cardNumber)) {
-        isValid = true;
-      }
-      if (isValid) {
-        document.getElementById('error-msg').innerHTML = "";
-      } else {
-        document.getElementById('error-msg').innerHTML = "Please provide a valid Visa number!";
-      }
-    }
     var vueInstance = new Vue({
       el: "#app",
       data: () => {
@@ -354,9 +308,38 @@
           sortBy: "",
           sortDirection: "",
           searchInput: "",
+          phoneNumber: "",
+          isValid: true,
+          name: "",
         };
       },
       methods: {
+        validateName() {
+          const purchaseButton = document.getElementById("purchase-btn");
+          const letterRegex = /^[a-z]+$/i;
+
+          if (this.name.match(letterRegex)) {
+            this.isValid = true;
+            purchaseButton.disabled = false;
+          } else {
+            this.isValid = false;
+            purchaseButton.disabled = true;
+          }
+        },
+        validatePhoneNumber() {
+          const purchaseButton = document.getElementById("purchase-btn");
+          const numberRegex = /^\d{10}$/;
+          if (this.phoneNumber.match(numberRegex)) {
+            this.isValidPhoneNumber = true;
+            purchaseButton.disabled = false;
+          } else {
+            this.isValidPhoneNumber = false;
+            purchaseButton.disabled = true;
+          }
+        },
+        validateCart() {
+          return this.cart.length > 0
+        },
         addToCart(product) {
           this.cart.push(product); // pushing product id to the cart array
           this.products.forEach((item) => {
@@ -369,8 +352,6 @@
         showCheckout() {
           if (this.cart.length > 0) {
             this.showProduct = this.showProduct ? false : true
-          } else {
-            alert("Add items to the cart!");
           }
         },
         submitForm() {
@@ -386,6 +367,7 @@
               item.space += 1;
             }
           })
+          console.log(this.cart.length);
         },
         // checks whether we are able to add items to the cart based on what's there in our available inventory 
         canAddToCart(product) {
