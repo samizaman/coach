@@ -121,7 +121,7 @@
                     <img :src="product.image" alt="product-image" width="200" height="220">
                   </figure>
                   <div class="card-body">
-                    <h5 class="card-title text-center" v-text="product.subject"></h5>
+                    <h5 class="card-title text-center">{{ product.subject }}</h5>
 
                     <p class="card-text text-center text-muted">{{product.location}}</p>
                     <p class="card-text">Price: £ {{product.price}}</p>
@@ -384,7 +384,6 @@
         },
 
         cartItemCount: function () {
-          console.log("cartItemCount");
           return this.cart.length || "";
         },
 
